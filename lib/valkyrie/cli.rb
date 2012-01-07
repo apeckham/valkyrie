@@ -8,6 +8,7 @@ class Valkyrie::CLI
     opts = Trollop::options(args) do
       opt :tables, "Tables to copy", :type => :string
       opt :buffer_length, "Number of rows to insert at once", :default => 500
+      opt :no_data, "Do not transfer table contents"
     end
     
     url1 = args.shift

@@ -28,28 +28,31 @@ class Valkyrie::Database
     db.connection.hash_to_schema(name, connection.schema_to_hash(name), &cb)
 
     columns = connection.schema(name).map(&:first)
-    dataset = connection[name.to_sym]
 
-    cb.call(:rows)
-    buffer = []
-    count = 0
+    unless @opts[:no_data]
+      dataset = connection[name.to_sym]
 
-    dataset.each do |row|
-      buffer << row
-      count  += 1
+      cb.call(:rows)
+      buffer = []
+      count = 0
 
-      if buffer.length >= @opts[:buffer_length]
-        cb.call(:row, count)
-        send_rows(db, name, columns, buffer)
-        buffer.clear
-        count=0
+      dataset.each do |row|
+        buffer << row
+        count  += 1
+
+        if buffer.length >= @opts[:buffer_length]
+          cb.call(:row, count)
+          send_rows(db, name, columns, buffer)
+          buffer.clear
+          count=0
+        end
       end
+
+      cb.call(:row, count)
+      send_rows(db, name, columns, buffer) if buffer.length > 0
     end
 
-    cb.call(:row, count)
-    send_rows(db, name, columns, buffer) if buffer.length > 0
     cb.call(:end)
-
     columns
   end
 
