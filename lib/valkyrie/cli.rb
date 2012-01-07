@@ -18,13 +18,13 @@ class Valkyrie::CLI
       exit 1
     end
 
-    db1 = Valkyrie::Database.new(url1)
+    db1 = Valkyrie::Database.new(url1, opts)
     db1.tables = opts[:tables].split(",").map(&:to_sym) if opts[:tables]
-    db2 = Valkyrie::Database.new(url2)
+    db2 = Valkyrie::Database.new(url2, opts)
 
     progress = nil
 
-    db1.transfer_to(db2, opts[:buffer_length]) do |type, data|
+    db1.transfer_to(db2) do |type, data|
       case type
         when :tables then puts "Transferring #{data} tables:"
         when :table  then progress = Valkyrie::ProgressBar.new(data.first, data.last, $stdout)
