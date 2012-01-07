@@ -7,6 +7,7 @@ class Valkyrie::Database
   Sequel.extension :pagination
 
   attr_reader :connection
+  attr_accessor :tables
 
   def initialize(uri)
     @connection = Sequel.connect(uri)

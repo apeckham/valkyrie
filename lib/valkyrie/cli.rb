@@ -1,9 +1,14 @@
 require "valkyrie/database"
 require "valkyrie/progress_bar"
+require 'valkyrie/trollop'
 
 class Valkyrie::CLI
 
   def self.start(*args)
+    opts = Trollop::options(args) do
+      opt :tables, "Tables to copy", :type => :string
+    end
+    
     url1 = args.shift
     url2 = args.shift
 
@@ -13,6 +18,7 @@ class Valkyrie::CLI
     end
 
     db1 = Valkyrie::Database.new(url1)
+    db1.tables = opts[:tables].split(",").map(&:to_sym) if opts[:tables]
     db2 = Valkyrie::Database.new(url2)
 
     progress = nil
