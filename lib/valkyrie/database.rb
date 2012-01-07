@@ -14,15 +14,15 @@ class Valkyrie::Database
     Sequel::MySQL.convert_invalid_date_time = nil if @connection.adapter_scheme == :mysql
   end
 
-  def transfer_to(db, &cb)
+  def transfer_to(db, buffer_length, &cb)
     cb.call(:tables, tables.length)
     tables.each do |name|
       cb.call(:table, [name, connection[name].count])
-      transfer_table(name, db, &cb)
+      transfer_table(name, db, buffer_length, &cb)
     end
   end
 
-  def transfer_table(name, db, &cb)
+  def transfer_table(name, db, buffer_length, &cb)
     db.connection.drop_table(name) if db.connection.table_exists?(name)
     db.connection.hash_to_schema(name, connection.schema_to_hash(name), &cb)
 
@@ -37,7 +37,7 @@ class Valkyrie::Database
       buffer << row
       count  += 1
 
-      if buffer.length > 500
+      if buffer.length >= buffer_length
         cb.call(:row, count)
         send_rows(db, name, columns, buffer)
         buffer.clear

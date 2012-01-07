@@ -7,6 +7,7 @@ class Valkyrie::CLI
   def self.start(*args)
     opts = Trollop::options(args) do
       opt :tables, "Tables to copy", :type => :string
+      opt :buffer_length, "Number of rows to insert at once", :default => 500
     end
     
     url1 = args.shift
@@ -23,7 +24,7 @@ class Valkyrie::CLI
 
     progress = nil
 
-    db1.transfer_to(db2) do |type, data|
+    db1.transfer_to(db2, opts[:buffer_length]) do |type, data|
       case type
         when :tables then puts "Transferring #{data} tables:"
         when :table  then progress = Valkyrie::ProgressBar.new(data.first, data.last, $stdout)
