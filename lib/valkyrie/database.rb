@@ -54,7 +54,13 @@ class Valkyrie::Database
 
   def send_rows(db, name, columns, rows)
     data = rows.map { |row| columns.map { |c| row[c] } }
-    db.connection[name].insert_multiple data
+
+    begin
+      db.connection[name].insert_multiple data
+    rescue
+      puts "Insert into #{name} failed: #{data.inspect}"
+      raise
+    end
   end
 
   def tables
