@@ -25,7 +25,7 @@ class Valkyrie::Database
 
   def transfer_table(name, db, &cb)
     db.connection.drop_table(name) if db.connection.table_exists?(name)
-    db.connection.hash_to_schema(name, connection.schema_to_hash(name), &cb)
+    db.connection.hash_to_schema(name, connection.schema_to_hash(name), @opts, &cb)
 
     columns = connection.schema(name).map(&:first)
 
